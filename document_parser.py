@@ -1,7 +1,6 @@
 import re
 import os
 from tqdm import tqdm
-import argparse
 from xml.sax.saxutils import unescape
 
 class ReutersDocument:    
@@ -32,7 +31,7 @@ class ReutersDocument:
 class ReutersParser:    
     def __init__(self, dataset_path):
         self.dataset_path = dataset_path
-        self.documents = ["The first document used as a filler for index 0"]
+        self.documents = []
         self.parse_all_files()
     
     def clean_text(self, text):
@@ -111,11 +110,15 @@ if __name__ == "__main__":
 
     print(f"\nTotal documents: {len(parser.documents)}")
 
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--docID', type=str)
-    args = arg_parser.parse_args()
-
-    # Print the content of the document
-    if args.docID:
-        print("\nDocument Information\n")
-        print(parser.documents[int(args.docID)].get_content())
+    while True:
+        try:
+            doc_id = int(input(f"\nEnter a document ID between 1 and {len(parser.documents)} (0 to exit): "))
+            if doc_id == 0:
+                break
+            if 1 <= doc_id <= len(parser.documents):
+                print(f"\nDocument {doc_id} content:\n")
+                print(parser.documents[doc_id - 1].get_content())
+            else:
+                print("Invalid document ID. Please try again.")
+        except ValueError:
+            print("Please enter a valid integer.")

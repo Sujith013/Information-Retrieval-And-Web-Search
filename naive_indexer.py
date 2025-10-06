@@ -1,11 +1,9 @@
-#This program implements a naive indexing algorithm by following these steps:
-#    1. Process documents and create term-document pairs
-#    2. Sort the pairs
-#    3. Remove duplicates
-#    4. Build postings lists for each term
+#This program implements the following:
+#    Subproject 1: Naive Indexer Implementation
+#    Subproject 2: Simgle and AND query Implementation
 
 import re
-import argparse
+import time
 from tqdm import tqdm
 from document_parser import ReutersParser
 
@@ -35,6 +33,7 @@ class NaiveIndexer:
         self.term_doc_pairs = []
         self.postings_list = {}
         self.document_count = 0
+        self.document_process_time = 0
         self.build_index()
     
     def build_index(self):
@@ -56,7 +55,8 @@ class NaiveIndexer:
         text = re.sub(r'[^\w\s]', ' ', text)
         return text.split(" ")
     
-    def create_term_doc_pairs(self):        
+    def create_term_doc_pairs(self):
+        start_time = time.time()
         for document in tqdm(self.parser.documents):
             self.document_count += 1
             
@@ -66,7 +66,11 @@ class NaiveIndexer:
             # Create term-document pairs
             for token in tokens:
                 self.term_doc_pairs.append(TermDocumentPair(token, document.doc_id))
-    
+            
+            if(self.document_count == 10000):
+                self.document_process_time = time.time() - start_time
+                print(f"Processed {self.document_count} documents in {self.document_process_time:.2f} seconds")
+
     def remove_duplicates_sort(self):
         unique_pairs = list(set(self.term_doc_pairs))
         self.term_doc_pairs = sorted(unique_pairs)
@@ -77,10 +81,58 @@ class NaiveIndexer:
                 self.postings_list[pair.term] = []
             self.postings_list[pair.term].append(pair.doc_id)
     
+    #Single Term Querying
     def search_term(self, term):
-        term = term.lower()
-        return self.postings_list.get(term)
+        term = term.lower().strip()
+        return self.postings_list.get(term, [])
     
+    #Single and AND Querying
+    def search_and_query(self, terms):
+        result = self.search_term(terms[0])
+
+        for term in terms[1:]:
+            term_postings = self.search_term(term)
+            result = self.intersect_postings(result, term_postings)
+            if not result:
+                break 
+
+        return result
+
+    def intersect_postings(self, list1, list2):
+        result = []
+        i, j = 0, 0
+
+        while i < len(list1) and j < len(list2):
+            if list1[i] == list2[j]:
+                result.append(list1[i])
+                i += 1
+                j += 1
+            elif list1[i] < list2[j]:
+                i += 1
+            else:
+                j += 1
+
+        return result
+
+    def validate_queries(self):
+        test_terms = ["movie", "samsung", "apple"]
+        print("\nValidating Single Term Queries:")
+        for term in test_terms:
+            docs = self.search_term(term)
+            print(f"'{term}': {len(docs)} documents : {docs}")
+
+        test_and_queries = [
+            ["movie", "oppenheimer", "viacom"],
+            ["gold", "stock"],
+            ["trade", "market", "oil"],
+            ["movie", "barbie"]
+        ]
+
+        print("\nValidating AND Queries:")
+        for terms in test_and_queries:
+            docs = self.search_and_query(terms)
+            print(f"'{' AND '.join(terms)}': {len(docs)} documents : {docs}")
+
     def get_statistics(self):
         vocabulary_size = len(self.postings_list)
         
@@ -111,13 +163,28 @@ if __name__ == "__main__":
     
     # Save the index
     indexer.save_index("naive_index.txt")
+
+    #Validating 3 single and 3 AND queries
+    indexer.validate_queries()
     
     # Test the search
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--term', type=str)
-    args = arg_parser.parse_args()
-    
-    if(args.term):
-        docs = indexer.search_term(args.term)
-        print(f"\n\n'{args.term}': {len(docs)} documents")
-        print(f"'{args.term}': {docs} documents")
+    while True:
+        term = input("\nEnter a term to search (or '0' to quit): ")
+
+        if term == '0':
+            break
+
+        if term:
+            if(len(re.split("AND", term))>1):
+                terms = re.split("AND", term)
+                docs = indexer.search_and_query(terms)
+                if docs:
+                    print(f"\n\n'{' AND '.join(terms)}': {len(docs)} documents : {docs}")
+                else:
+                    print(f"The terms '{' AND '.join(terms)}' were not found together in any document.")    
+            else:
+                docs = indexer.search_term(term)
+                if docs:
+                    print(f"\n\n'{term}': {len(docs)} documents : {docs}")
+                else:
+                    print(f"The term '{term}' was not found.")
