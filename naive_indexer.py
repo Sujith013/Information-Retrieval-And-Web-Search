@@ -16,7 +16,7 @@ class TermDocumentPair:
         # For sorting: first by term, then by doc_id.
         if self.term != other.term:
             return self.term < other.term
-        return self.doc_id < other.doc_id
+        return int(self.doc_id) < int(other.doc_id)
     
     def __eq__(self, other):
         # For duplicate removal.
@@ -69,7 +69,6 @@ class NaiveIndexer:
             
             if(self.document_count == 10000):
                 self.document_process_time = time.time() - start_time
-                print(f"Processed {self.document_count} documents in {self.document_process_time:.2f} seconds")
 
     def remove_duplicates_sort(self):
         unique_pairs = list(set(self.term_doc_pairs))
@@ -103,11 +102,11 @@ class NaiveIndexer:
         i, j = 0, 0
 
         while i < len(list1) and j < len(list2):
-            if list1[i] == list2[j]:
+            if int(list1[i]) == int(list2[j]):
                 result.append(list1[i])
                 i += 1
                 j += 1
-            elif list1[i] < list2[j]:
+            elif int(list1[i]) < int(list2[j]):
                 i += 1
             else:
                 j += 1
@@ -145,7 +144,7 @@ class NaiveIndexer:
     
     def save_index(self, filename):
         with open(filename, 'w', encoding='utf-8') as f:
-            f.write(f"# Naive Indexer Results\n")
+            f.write(f"Naive Indexer Results\n")
             f.write(f"{self.get_statistics()}\n")
             
             for term in sorted(self.postings_list.keys()):
@@ -160,6 +159,7 @@ if __name__ == "__main__":
     # Show statistics
     print("\nIndexing Statistics:")
     print(indexer.get_statistics())
+    print(f"Processed {indexer.document_count} documents in {indexer.document_process_time:.2f} seconds")
     
     # Save the index
     indexer.save_index("naive_index.txt")
