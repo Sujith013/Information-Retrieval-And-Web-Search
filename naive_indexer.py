@@ -50,8 +50,7 @@ class NaiveIndexer:
         if not text:
             return []
         
-        text = text.lower()
-        text = re.sub(r'[\d]', ' ', text)
+        text = text
         text = re.sub(r'[^\w\s]', ' ', text)
         return text.split(" ")
     
@@ -82,7 +81,7 @@ class NaiveIndexer:
     
     #Single Term Querying
     def search_term(self, term):
-        term = term.lower().strip()
+        term = term.strip()
         return self.postings_list.get(term, [])
     
     #Single and AND Querying
@@ -114,14 +113,23 @@ class NaiveIndexer:
         return result
 
     def validate_queries(self):
-        test_terms = ["movie", "samsung", "apple"]
+        test_terms = ["movie", "Samsung", "apple"]
         print("\nValidating Single Term Queries:")
         for term in test_terms:
             docs = self.search_term(term)
             print(f"'{term}': {len(docs)} documents : {docs}")
 
+        #Challenge queries
+        start_time = time.time()
+        test_terms = ["copper", "Chrysler", "Bundesbank"]
+        print("\nValidating Challenge Queries:")
+        for term in test_terms:
+            docs = self.search_term(term)
+            print(f"'{term}': {len(docs)} documents : {docs}")
+        print(f"Challenge queries processed in {time.time() - start_time:.2f} seconds")
+
         test_and_queries = [
-            ["movie", "oppenheimer", "viacom"],
+            ["Movie", "Oppenheimer", "Viacom"],
             ["gold", "stock"],
             ["trade", "market", "oil"],
             ["movie", "barbie"]
