@@ -244,9 +244,6 @@ def compare_query_results(naive_indexer, compression_results):
 
 if __name__ == "__main__":
     naive_indexer = NaiveIndexer(dataset_path="./reuters21578")
-    
-    # Generate compression table
+
     compression_results = generate_compression_table(naive_indexer)
-    
-    # Compare query results
     compare_query_results(naive_indexer, compression_results)

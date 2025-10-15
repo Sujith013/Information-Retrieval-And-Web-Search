@@ -4,7 +4,6 @@ from tqdm import tqdm
 from xml.sax.saxutils import unescape
 
 class ReutersDocument:    
-    # To store individual document details and extract the content with ease
     def __init__(self, doc_id, title, body, date_loc, author):
         self.doc_id = doc_id
         self.title = title
@@ -105,7 +104,6 @@ class ReutersParser:
             self.documents.extend(self.parse_file(file))
 
 if __name__ == "__main__":
-    # Test the parser
     parser = ReutersParser(dataset_path="./reuters21578")
 
     print(f"\nTotal documents: {len(parser.documents)}")

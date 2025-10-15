@@ -1,0 +1,18 @@
+I have used the relative paths to access the dataset from every code file. Thus, do not change the structure of the folders and files.
+View the challenge query results on the challenge_query_results.txt file
+
+In order to run the code, please do the following: 
+
+1. please ensure that you have the following libraries installed: tqdm (using pip)
+
+2. The document_parser.py file parses all the SGM files and removes the xml annotations and all other irrelevant info to finally obtain the text values. Run this file from the terminal by providing "python document_parser.py" . The documents will be processed and you will be asked to input the doc_id to view it. I have used a while loop so that you can enter doc id to view the text inside the document repetitively. Enter 0 to exit the loop and the program.
+
+3. The naive_indexer.py contains the code for subproject 1 and 2. I have tested both single and the AND queries. The challenge queries are also tested. Run the file using "python naive_indexer.py". You can view the results for all of the queries mentioned above. I have again used a while loop so that you can search for terms as long as you want and exit by providing 0. once you search for the term, the number of documents and the documents list is provided. Note, only their ids are given. If you want to know what is in the doc, use the ids provided in the document_parser.py program to have the contents displayed.
+
+4. The spimi_indexer.py contains the code for subproject 4. The running of this program is exactly the same as the naive_indexer. So, do the same things mentioned above again. Only the way in which the indexing happens differs.
+
+5. In both the naive and spimi indexer program outputs, I have also printed the time taken for querying and the time taken for creating the postings list.
+
+6. Finally the dictionary_compression.py file does the compression for 7 different techniques. you can view the table of results printed when you run this code in a similar fashion as mentioned above. Here you can see the differences in the postings and the search results for different techniques applied. 
+
+Please note that it can take a few seconds for the parsing of the files, creating of the lists etc. Thus, please do allow some time and wait when the program doesn't show any output. The dictionary_compression program especially takes a long time to run as it does the computation again and again for different techniques.
